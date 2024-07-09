@@ -37,6 +37,10 @@ def consulta_pedagio(api_key, token, cnpj, doc_transporte):
         return response.json()
 
 def format_result(data):
+    valor_total_pedagio = data.get('ValorTotalPed')
+    if valor_total_pedagio is not None:
+        valor_total_pedagio = f"R$ {float(valor_total_pedagio):,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+
     return f"""
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
@@ -86,7 +90,7 @@ def format_result(data):
                             <div class="row">
                                 <div class="col">
                                     <h5 class="label-title">Total do Pedágio</h5>
-                                    <h5 class="value-title">{data.get('ValorTotalPed')}</h5>
+                                    <h5 class="value-title" id="valorTotalPed">{valor_total_pedagio}</h5>
                                 </div>
                                 <div class="col">
                                     <h5 class="label-title">Número de Eixos</h5>
@@ -119,7 +123,27 @@ def format_result(data):
                 </div>
             </div>
         </div>
+        <div class="row mt-3">
+            <div class="col-md-12 text-center">
+                <button onclick="copyToClipboard()" class="btn btn-primary">Copiar Total do Pedágio</button>
+                <p id="copyMessage" style="display:none;">Valor copiado</p>
+            </div>
+        </div>
     </div>
+    <script>
+        function copyToClipboard() {{
+            var copyText = document.getElementById("valorTotalPed").innerText;
+            navigator.clipboard.writeText(copyText).then(function() {{
+                var copyMessage = document.getElementById("copyMessage");
+                copyMessage.style.display = "block";
+                setTimeout(function() {{
+                    copyMessage.style.display = "none";
+                }}, 2000);
+            }}, function(err) {{
+                console.error('Failed to copy text: ', err);
+            }});
+        }}
+    </script>
     """
 
 def main():
@@ -159,4 +183,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
